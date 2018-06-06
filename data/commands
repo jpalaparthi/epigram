@@ -1,0 +1,2 @@
+docker run --name mgodb -p 27017:27017  -v /Users/jpalapar/workspace/projects/personal/data/db:/data/db -d mongo
+
