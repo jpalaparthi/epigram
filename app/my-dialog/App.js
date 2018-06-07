@@ -1,22 +1,32 @@
 import React, { Component } from "react";
 import { View, Text, FlatList } from "react-native";
 import { SearchBar, Header } from "react-native-elements";
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { createBottomTabNavigator } from 'react-navigation';
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { createBottomTabNavigator } from "react-navigation";
+import { AppLoading, Font } from "expo";
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = {
       data: [],
-      error: null
+      error: null,
+      isReady: false,
     };
-
     this.getDialogsFromApiAsync();
   }
   componentDidMount() {
     this.getDialogsFromApiAsync();
+  }
+
+  componentWillMount() {
+    (async () => {
+      await Font.loadAsync({
+        Callig: require("./assets/fonts/myfont.ttf")
+      });
+      this.setState({ isReady: true });
+    })();
+
   }
 
   getDialogsFromApiAsync = () => {
@@ -37,23 +47,44 @@ class App extends React.Component {
         style={{
           height: 1,
           width: "100%",
-          backgroundColor: "#CED0CE",
+          backgroundColor: "#CED0CE"
         }}
       />
     );
   };
-  
-  _renderItem = ({item}) => (
-        <View style={{ flexDirection:'row'}}>
-          <Text style={{minHeight: 30, backgroundColor: 'black',color:'white',textAlign:'justify',padding:10,flex: 1, flexWrap: 'wrap'}} >{item.dialog}</Text>
-        </View>
+
+  _renderItem = ({ item }) => (
+    <View style={{ flexDirection: "row" }}>
+      <Text
+        style={{
+          minHeight: 30,
+          backgroundColor: "black",
+          color: "white",
+          textAlign: "justify",
+          padding: 10,
+          flex: 1,
+          flexWrap: "wrap"
+        }}
+      >
+        {item.dialog}
+      </Text>
+    </View>
   );
   render() {
+    if (!this.state.isReady) {
+      return <AppLoading />;
+    }
     return (
       <View>
         <Header
-          leftComponent={{ icon: "menu", color: "#fff" }}
-          centerComponent={{ text: "Picas", style: { color: "#fff" } }}
+          leftComponent={{ icon: "add", color: "#fff" ,fontSize: 30}}
+          centerComponent={{
+            text: "Epigram",
+            style: {
+              color: "#fff", fontFamily: 'Callig', fontSize: 30,
+              fontWeight: 'bold'
+            }
+          }}
           rightComponent={{ icon: "home", color: "#fff" }}
         />
         <SearchBar
@@ -75,11 +106,12 @@ class App extends React.Component {
     );
   }
 }
+Expo.registerRootComponent(App);
 
 class SettingsScreen extends React.Component {
   render() {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text>Settings!</Text>
       </View>
     );
@@ -89,39 +121,40 @@ class SettingsScreen extends React.Component {
 class ProfileScreen extends React.Component {
   render() {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text>Profile</Text>
       </View>
     );
   }
 }
 
-export default createBottomTabNavigator({
-  Home: App,
-  Settings: SettingsScreen,
-  MyProfile: ProfileScreen,
-},
-{
-  navigationOptions: ({ navigation }) => ({
-    tabBarIcon: ({ focused, tintColor }) => {
-      const { routeName } = navigation.state;
-      let iconName;
-      if (routeName === 'Home') {
-        iconName = `ios-book${focused ? '' : '-outline'}`;
-      } else if (routeName === 'Settings') {
-        iconName = `ios-options${focused ? '' : '-outline'}`;
-      }else if (routeName === 'MyProfile') {
-          iconName = `ios-people${focused ? '' : '-outline'}`;
-      }
-
-      // You can return any component that you like here! We usually use an
-      // icon component from react-native-vector-icons
-      return <Ionicons name={iconName} size={25} color={tintColor} />;
-    },
-  }),
-  tabBarOptions: {
-    activeTintColor: 'tomato',
-    inactiveTintColor: 'gray',
+export default createBottomTabNavigator(
+  {
+    Home: App,
+    Settings: SettingsScreen,
+    MyProfile: ProfileScreen
   },
-}
+  {
+    navigationOptions: ({ navigation }) => ({
+      tabBarIcon: ({ focused, tintColor }) => {
+        const { routeName } = navigation.state;
+        let iconName;
+        if (routeName === "Home") {
+          iconName = `ios-book${focused ? "" : "-outline"}`;
+        } else if (routeName === "Settings") {
+          iconName = `ios-options${focused ? "" : "-outline"}`;
+        } else if (routeName === "MyProfile") {
+          iconName = `ios-people${focused ? "" : "-outline"}`;
+        }
+
+        // You can return any component that you like here! We usually use an
+        // icon component from react-native-vector-icons
+        return <Ionicons name={iconName} size={25} color={tintColor} />;
+      }
+    }),
+    tabBarOptions: {
+      activeTintColor: "tomato",
+      inactiveTintColor: "gray"
+    }
+  }
 );
